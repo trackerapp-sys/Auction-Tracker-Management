@@ -6,7 +6,6 @@ services:
     region: oregon
     buildCommand: npm install && npm run build
     startCommand: npm start
-    staticPublishPath: .next
     envVars:
       - key: MONGODB_URI
         value: mongodb+srv://auctionuser:t8fmvEb8Wef15Flq@app.rznajn1.mongodb.net/auction-management?retryWrites=true&w=majority&appName=app
