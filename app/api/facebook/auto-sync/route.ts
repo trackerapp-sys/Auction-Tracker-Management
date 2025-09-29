@@ -15,9 +15,23 @@ async function fetchCommentsFromPost(postUrl: string, facebookAccessToken?: stri
   console.log('Extracted Post ID:', postId)
   console.log('Post URL:', postUrl)
 
-  // For now, return mock data to test the bid processing flow
-  // This will show you how the app works while we sort out Facebook permissions
-  console.log('Using mock data for testing bid detection...')
+  // Try real Facebook API first
+  if (facebookAccessToken && facebookAccessToken.length > 10) {
+    try {
+      console.log('Attempting to fetch REAL Facebook comments...')
+      const comments = await fetchViaApi(postId, facebookAccessToken)
+      console.log(`✅ Successfully fetched ${comments.length} REAL comments from Facebook!`)
+      return comments
+    } catch (apiError) {
+      console.error('❌ Facebook Graph API failed:', apiError)
+      console.log('🔧 Falling back to mock data...')
+    }
+  } else {
+    console.log('⚠️ No Facebook access token provided, using mock data')
+  }
+
+  // Fallback to mock data
+  console.log('📝 Using mock data to demonstrate bid detection...')
   const mockComments: FacebookComment[] = [
     {
       id: "test_1",
@@ -56,7 +70,7 @@ async function fetchCommentsFromPost(postUrl: string, facebookAccessToken?: stri
     }
   ]
   
-  console.log(`Returning ${mockComments.length} mock comments for testing`)
+  console.log(`📝 Returning ${mockComments.length} mock comments (NOT real Facebook data)`)
   return mockComments
 }
 

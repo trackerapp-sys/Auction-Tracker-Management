@@ -36,35 +36,61 @@ interface GraphApiResponse {
  */
 export async function fetchFacebookComments(postId: string, accessToken: string): Promise<FacebookComment[]> {
   try {
-    const url = `${FACEBOOK_API_BASE}/${postId}/comments?fields=id,message,from,created_time,permalink_url&limit=100&access_token=${accessToken}`
+    console.log(`Attempting to fetch comments for post ID: ${postId}`)
     
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-    })
+    // Try different API endpoints for different types of posts
+    const urls = [
+      `${FACEBOOK_API_BASE}/${postId}/comments?fields=id,message,from,created_time,permalink_url&limit=100&access_token=${accessToken}`,
+      `${FACEBOOK_API_BASE}/${postId}?fields=comments{id,message,from,created_time,permalink_url}&access_token=${accessToken}`,
+      `${FACEBOOK_API_BASE}/${postId}/comments?access_token=${accessToken}`
+    ]
+    
+    for (const url of urls) {
+      try {
+        console.log(`Trying URL: ${url}`)
+        
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+        })
 
-    if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(`Facebook API Error: ${errorData.error?.message || 'Unknown error'}`)
+        if (!response.ok) {
+          console.warn(`URL failed with status ${response.status}`)
+          const errorData = await response.json().catch(() => ({}))
+          console.warn('Error details:', errorData.error || 'Unknown error')
+          continue
+        }
+
+        const data: GraphApiResponse = await response.json()
+        console.log('Successfully fetched comments:', data)
+        
+        if (data.data && data.data.length > 0) {
+          // Convert API response to our interface
+          const comments: FacebookComment[] = data.data.map(comment => ({
+            id: comment.id,
+            message: comment.message || '',
+            from: {
+              name: comment.from.name,
+              id: comment.from.id,
+            },
+            created_time: comment.created_time,
+            permalink_url: comment.permalink_url,
+          }))
+
+          console.log(`Successfully processed ${comments.length} comments`)
+          return comments
+        }
+        
+      } catch (endpointError) {
+        console.warn(`Endpoint failed:`, endpointError)
+        continue
+      }
     }
-
-    const data: GraphApiResponse = await response.json()
     
-    // Convert API response to our interface
-    const comments: FacebookComment[] = data.data.map(comment => ({
-      id: comment.id,
-      message: comment.message || '',
-      from: {
-        name: comment.from.name,
-        id: comment.from.id,
-      },
-      created_time: comment.created_time,
-      permalink_url: comment.permalink_url,
-    }))
-
-    return comments
+    throw new Error('All Facebook API endpoints failed')
+    
   } catch (error) {
     console.error('Error fetching Facebook comments:', error)
     throw error
