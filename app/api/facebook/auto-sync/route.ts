@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
         if (parsedBid.isIncrement) {
           finalAmount = currentBidAmount + parsedBid.amount
           parsedBid.amount = finalAmount // Update the amount for comparison
-          parsedBid.notes = parsedBid.notes || `Increment bid (+$${parsedBid.amount - currentBidAmount} more than ${currentBidAmount})`
+          parsedBid.notes = parsedBid.notes || `Increment bid (+$${parsedBid.amount - currentBidAmount})`
         }
         
         // Update current bid amount for next comparison

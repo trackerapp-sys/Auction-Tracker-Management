@@ -18,6 +18,7 @@ export interface ParsedBid {
   timestamp: Date
   confidence: number // 0-1 confidence score
   isIncrement?: boolean // true if this is an increment bid
+  notes?: string // Optional notes field for processing
 }
 
 // Common bid patterns to detect
