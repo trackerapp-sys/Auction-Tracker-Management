@@ -62,9 +62,8 @@ export function parseBidFromComment(comment: FacebookComment): ParsedBid | null 
   
   // Try each pattern
   for (const pattern of BID_PATTERNS) {
-    const matches = [...message.matchAll(pattern)]
-    
-    for (const match of matches) {
+    let match: RegExpExecArray | null
+    while ((match = pattern.exec(message)) !== null) {
       const amount = parseFloat(match[1].replace(',', '.')) // Standardize decimal point
       
       if (amount > 0 && amount < 1000000) { // Reasonable bid range
