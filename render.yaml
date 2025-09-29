@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: facebook-auction-management
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        value: mongodb+srv://auctionuser:t8fmvEb8Wef15Flq@app.rznajn1.mongodb.net/auction-management?retryWrites=true&w=majority&appName=app
+      - key: FACEBOOK_ACCESS_TOKEN
+        value: 73f5b2c473b69a504559bbc510243d02
+      - key: NODE_ENV
+        value: production
