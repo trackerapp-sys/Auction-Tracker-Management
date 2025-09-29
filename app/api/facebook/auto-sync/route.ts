@@ -12,60 +12,52 @@ async function fetchCommentsFromPost(postUrl: string, facebookAccessToken?: stri
     throw new Error('Could not extract post ID from Facebook URL')
   }
 
-  // Try Facebook Graph API if access token is available
-  if (facebookAccessToken && facebookAccessToken.length > 10) {
-    try {
-      console.log('Attempting to fetch comments via Facebook Graph API...')
-      const comments = await fetchViaApi(postId, facebookAccessToken)
-      console.log(`Successfully fetched ${comments.length} comments via Facebook API`)
-      return comments
-    } catch (apiError) {
-      console.warn('Facebook Graph API failed, falling back to scraping:', apiError)
-    }
-  }
+  console.log('Extracted Post ID:', postId)
+  console.log('Post URL:', postUrl)
 
-  // Fallback to scraping method
-  console.log('Using scraping method to fetch comments...')
-  try {
-    const comments = await scrapeFacebookComments(postUrl)
-    console.log(`Successfully scraped ${comments.length} comments`)
-    return comments
-  } catch (scrapeError) {
-    console.error('Both Facebook API and scraping failed:', scrapeError)
-    
-    // Last resort: return mock data with a warning
-    console.warn('Returning mock data - implement proper Facebook integration')
-    return [
-      {
-        id: "fallback_1",
-        message: "I bid $150 for this watch",
-        from: { name: "John Smith", id: "user_123" },
-        created_time: "2024-01-15T10:30:00Z",
-        permalink_url: "https://facebook.com/comment_1"
-      },
-      {
-        id: "fallback_2", 
-        message: "$200 here",
-        from: { name: "Sarah Johnson", id: "user_456" },
-        created_time: "2024-01-15T11:00:00Z",
-        permalink_url: "https://facebook.com/comment_2"
-      },
-      {
-        id: "fallback_3",
-        message: "I'll bid $250 AUD",
-        from: { name: "Emma Wilson", id: "user_101" },
-        created_time: "2024-01-15T12:00:00Z",
-        permalink_url: "https://facebook.com/comment_4"
-      },
-      {
-        id: "fallback_4",
-        message: "Plus $50 more",
-        from: { name: "David Brown", id: "user_202" },
-        created_time: "2024-01-15T12:30:00Z",
-        permalink_url: "https://facebook.com/comment_5"
-      }
-    ]
-  }
+  // For now, return mock data to test the bid processing flow
+  // This will show you how the app works while we sort out Facebook permissions
+  console.log('Using mock data for testing bid detection...')
+  const mockComments: FacebookComment[] = [
+    {
+      id: "test_1",
+      message: "I bid $150 for this item",
+      from: { name: "John Smith", id: "user_123" },
+      created_time: "2024-01-15T10:30:00Z",
+      permalink_url: "https://facebook.com/comment_1"
+    },
+    {
+      id: "test_2", 
+      message: "$200 dollars",
+      from: { name: "Sarah Johnson", id: "user_456" },
+      created_time: "2024-01-15T11:00:00Z",
+      permalink_url: "https://facebook.com/comment_2"
+    },
+    {
+      id: "test_3",
+      message: "I'll bid $250 AUD",
+      from: { name: "Emma Wilson", id: "user_101" },
+      created_time: "2024-01-15T12:00:00Z",
+      permalink_url: "https://facebook.com/comment_4"
+    },
+    {
+      id: "test_4",
+      message: "Plus $50 more",
+      from: { name: "David Brown", id: "user_202" },
+      created_time: "2024-01-15T12:30:00Z",
+      permalink_url: "https://facebook.com/comment_5"
+    },
+    {
+      id: "test_5",
+      message: "Just checking if this item is still available",
+      from: { name: "Mike Chen", id: "user_789" },
+      created_time: "2024-01-15T13:00:00Z",
+      permalink_url: "https://facebook.com/comment_6"
+    }
+  ]
+  
+  console.log(`Returning ${mockComments.length} mock comments for testing`)
+  return mockComments
 }
 
 export async function POST(request: NextRequest) {
@@ -101,7 +93,11 @@ export async function POST(request: NextRequest) {
     // Get Facebook access token from environment or settings
     const facebookAccessToken = process.env.FACEBOOK_ACCESS_TOKEN
     
-    // Fetch comments from Facebook
+    console.log('Facebook Access Token available:', !!facebookAccessToken)
+    console.log('Auction URL:', auction.groupUrl)
+    
+    // For now, use mock data to test the flow
+    // TODO: Implement real Facebook API when permissions are sorted
     const comments = await fetchCommentsFromPost(auction.groupUrl, facebookAccessToken)
     
     // Parse bids from comments
